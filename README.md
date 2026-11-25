@@ -56,6 +56,15 @@ WordPress 6.5+, WooCommerce 9.0+, WooCommerce Subscriptions, PHP 7.4+. HPOS comp
 
 Template override: copy `templates/cancel-flow.php` to `yourtheme/churnanchor/cancel-flow.php`.
 
+## Demo and guides
+
+- 45-second demo video: https://www.youtube.com/watch?v=0OWsuQpSZMk
+- [Cancellation reason survey for WooCommerce Subscriptions (tested PHP snippet)](https://churnanchor.marul.co/guides/woocommerce-subscriptions-cancellation-survey-code/)
+- [Which save offer to show for each cancellation reason](https://churnanchor.marul.co/guides/save-offer-for-each-cancellation-reason/)
+- [Click-to-cancel rules for WooCommerce Subscriptions stores](https://churnanchor.marul.co/guides/click-to-cancel-woocommerce-subscriptions/)
+- [Auto-renewal consent checkbox at checkout](https://churnanchor.marul.co/guides/auto-renewal-consent-checkbox-woocommerce/)
+- [WooCommerce Subscriptions retention plugins compared](https://churnanchor.marul.co/compare/woocommerce-subscriptions-retention-plugins/)
+
 ## ChurnAnchor Pro
 
 An optional paid add-on adds a one-time renewal discount, a 4–6 month pause, "ask the store to fix it", up to two offers per reason, category rules, win-back and renewal reminder emails, auto-renewal consent records at checkout (classic and block), and per-offer reports. https://churnanchor.marul.co/pricing/
