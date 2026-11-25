@@ -1,0 +1,175 @@
+/*
+ * ChurnAnchor cancellation flow.
+ * Inherits the theme's font and text colour. Change the accent with:
+ *   .churnanchor-flow { --ca-accent: #your-brand-colour; }
+ * Rule kept on purpose: the cancel button is the same size and weight as the other choice.
+ */
+.churnanchor-flow {
+	--ca-accent: #1f5f4f;
+	--ca-accent-ink: #fff;
+	--ca-line: color-mix(in srgb, currentColor 16%, transparent);
+	--ca-soft: color-mix(in srgb, currentColor 4%, transparent);
+	--ca-muted: color-mix(in srgb, currentColor 62%, transparent);
+	--ca-radius: 6px;
+	max-width: 640px;
+	margin: 0 0 2em;
+	line-height: 1.5;
+}
+.churnanchor-flow *,
+.churnanchor-flow *::before,
+.churnanchor-flow *::after { box-sizing: border-box; }
+
+.churnanchor-flow .ca-muted { color: var(--ca-muted); font-weight: 400; }
+
+/* Subscription being cancelled */
+.churnanchor-flow .ca-summary {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: .25em 1.5em;
+	padding: .85em 0;
+	border-top: 1px solid var(--ca-line);
+	border-bottom: 1px solid var(--ca-line);
+	font-size: .95em;
+}
+.churnanchor-flow .ca-summary-name { font-weight: 600; }
+.churnanchor-flow .ca-summary-name .ca-muted { margin-left: .5em; font-size: .92em; }
+
+.churnanchor-flow .ca-step {
+	margin: 1.6em 0 .35em;
+	font-size: .8em;
+	letter-spacing: .06em;
+	text-transform: uppercase;
+	color: var(--ca-muted);
+}
+.churnanchor-flow .ca-title {
+	margin: 0 0 .35em;
+	font-size: 1.55em;
+	line-height: 1.25;
+}
+.churnanchor-flow .ca-lead { margin: 0 0 1.4em; color: var(--ca-muted); }
+
+/* Reasons */
+.churnanchor-flow .ca-options { border: 0; margin: 0 0 1.2em; padding: 0; }
+.churnanchor-flow .ca-option {
+	display: flex;
+	align-items: center;
+	gap: .75em;
+	min-height: 48px;
+	padding: .7em .9em;
+	margin: 0 0 -1px;
+	border: 1px solid var(--ca-line);
+	cursor: pointer;
+	position: relative;
+}
+.churnanchor-flow .ca-option:first-of-type { border-radius: var(--ca-radius) var(--ca-radius) 0 0; }
+.churnanchor-flow .ca-option:last-of-type { border-radius: 0 0 var(--ca-radius) var(--ca-radius); }
+.churnanchor-flow .ca-option:hover { background: var(--ca-soft); }
+.churnanchor-flow .ca-option input {
+	margin: 0;
+	width: 1.1em;
+	height: 1.1em;
+	accent-color: var(--ca-accent);
+	flex: none;
+}
+.churnanchor-flow .ca-option:has(input:checked) {
+	border-color: var(--ca-accent);
+	box-shadow: inset 3px 0 0 var(--ca-accent);
+	z-index: 1;
+}
+.churnanchor-flow .ca-option:has(input:focus-visible) { outline: 2px solid var(--ca-accent); outline-offset: 2px; z-index: 2; }
+
+.churnanchor-flow .ca-field label { display: block; margin-bottom: .35em; font-size: .95em; }
+.churnanchor-flow .ca-field textarea {
+	width: 100%;
+	padding: .6em .75em;
+	border: 1px solid var(--ca-line);
+	border-radius: var(--ca-radius);
+	font: inherit;
+	color: inherit;
+	background: transparent;
+}
+.churnanchor-flow .ca-field textarea:focus { outline: 2px solid var(--ca-accent); outline-offset: 1px; }
+
+/* Offer and confirmation boxes */
+.churnanchor-flow .ca-offer {
+	border: 1px solid var(--ca-accent);
+	border-radius: var(--ca-radius);
+	padding: 1.1em 1.2em;
+	margin: 0 0 1.4em;
+}
+.churnanchor-flow .ca-offer-plain { border-color: var(--ca-line); }
+.churnanchor-flow .ca-offer-name { margin: 0 0 .8em; font-weight: 600; font-size: 1.1em; }
+.churnanchor-flow .ca-dates { margin: 0; }
+.churnanchor-flow .ca-dates > div {
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
+	gap: .2em 1em;
+	padding: .55em 0;
+	border-top: 1px dashed var(--ca-line);
+}
+.churnanchor-flow .ca-dates > div:first-child { border-top: 0; padding-top: 0; }
+.churnanchor-flow .ca-dates dt { color: var(--ca-muted); }
+.churnanchor-flow .ca-dates dd { margin: 0; font-variant-numeric: tabular-nums; text-align: right; }
+.churnanchor-flow .ca-dates s { color: var(--ca-muted); }
+.churnanchor-flow .ca-offer-note { margin: .8em 0 0; font-size: .92em; color: var(--ca-muted); }
+.churnanchor-flow .ca-offer + .ca-offer { margin-top: -.4em; }
+.churnanchor-flow .ca-offer-accept { margin: 1em 0 0; }
+.churnanchor-flow .ca-offer-accept .ca-btn { width: 100%; }
+.churnanchor-flow .ca-dates dd span { color: var(--ca-muted); margin: 0 .2em; }
+
+/* Neutralise common theme overrides on buttons and radios inside the flow. */
+.woocommerce .churnanchor-flow .ca-btn,
+.churnanchor-flow .ca-actions .ca-btn {
+	box-shadow: none;
+	text-transform: none;
+	letter-spacing: normal;
+	font-size: 1em;
+	margin: 0;
+}
+.churnanchor-flow .ca-option input[type="radio"] { appearance: auto; -webkit-appearance: radio; position: static; opacity: 1; }
+.churnanchor-flow .ca-title:focus { outline: none; }
+.churnanchor-flow .ca-title:focus-visible { outline: none; } /* Programmatic focus target, not an interactive control. */
+
+/* Buttons: both choices get the same size */
+.churnanchor-flow .ca-actions {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: .75em;
+	margin: 0 0 1em;
+}
+.churnanchor-flow .ca-actions form { margin: 0; display: contents; }
+.churnanchor-flow .ca-btn {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 48px;
+	width: 100%;
+	padding: .7em 1.1em;
+	border-radius: var(--ca-radius);
+	border: 1px solid var(--ca-accent);
+	font: inherit;
+	font-weight: 600;
+	line-height: 1.2;
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+	transition: background-color .15s ease, color .15s ease;
+}
+.churnanchor-flow .ca-actions .ca-btn-primary,
+.woocommerce .churnanchor-flow .ca-btn-primary { background: var(--ca-accent); color: var(--ca-accent-ink); border-color: var(--ca-accent); }
+.churnanchor-flow .ca-btn-primary:hover { background: color-mix(in srgb, var(--ca-accent) 88%, #000); }
+.churnanchor-flow .ca-actions .ca-btn-secondary,
+.woocommerce .churnanchor-flow .ca-btn-secondary { background: transparent; color: inherit; border-color: currentColor; }
+.churnanchor-flow .ca-btn-secondary:hover { background: var(--ca-soft); }
+.churnanchor-flow .ca-btn:focus-visible { outline: 2px solid var(--ca-accent); outline-offset: 2px; }
+.churnanchor-flow .ca-keep { margin: 0; font-size: .95em; }
+
+@media (forced-colors: active) {
+	.churnanchor-flow .ca-btn, .churnanchor-flow .ca-option, .churnanchor-flow .ca-offer { border: 1px solid CanvasText; }
+	.churnanchor-flow .ca-option:has(input:checked) { outline: 2px solid Highlight; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.churnanchor-flow .ca-btn { transition: none; }
+}

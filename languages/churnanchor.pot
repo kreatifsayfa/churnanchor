@@ -1,0 +1,431 @@
+# Copyright (C) 2026 kreatiftr
+# This file is distributed under the GPL-2.0-or-later.
+msgid ""
+msgstr ""
+"Project-Id-Version: ChurnAnchor 0.2.1\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/churnanchor\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2026-11-25T00:49:52+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: churnanchor\n"
+
+#. Plugin Name of the plugin
+#: churnanchor.php
+#: includes/class-admin.php:40
+#: includes/class-admin.php:109
+msgid "ChurnAnchor"
+msgstr ""
+
+#. Plugin URI of the plugin
+#: churnanchor.php
+msgid "https://churnanchor.marul.co/"
+msgstr ""
+
+#. Description of the plugin
+#: churnanchor.php
+msgid "A fair, dark-pattern-free cancellation flow for WooCommerce Subscriptions: ask why, offer a skip or a pause, and track the revenue you actually keep."
+msgstr ""
+
+#. Author of the plugin
+#: churnanchor.php
+msgid "kreatiftr"
+msgstr ""
+
+#. Author URI of the plugin
+#: churnanchor.php
+msgid "https://profiles.wordpress.org/kreatiftr/"
+msgstr ""
+
+#: includes/class-admin.php:50
+msgid "Dashboard & settings"
+msgstr ""
+
+#: includes/class-admin.php:110
+msgid "Date range"
+msgstr ""
+
+#. translators: %d: number of days
+#: includes/class-admin.php:115
+#, php-format
+msgid "%d days"
+msgstr ""
+
+#: includes/class-admin.php:123
+msgid "Settings saved."
+msgstr ""
+
+#: includes/class-admin.php:127
+msgid "WooCommerce Subscriptions was not detected. Activate it to use the cancellation flow."
+msgstr ""
+
+#: includes/class-admin.php:132
+msgid "No cancellations in this period yet"
+msgstr ""
+
+#: includes/class-admin.php:133
+msgid "When a customer clicks \"Cancel\" on a subscription in My Account, they now see the ChurnAnchor flow. Their reasons and any offers they accept will appear here."
+msgstr ""
+
+#: includes/class-admin.php:134
+msgid "To see the flow yourself, log in as a customer with an active subscription and click \"Cancel\" on it."
+msgstr ""
+
+#: includes/class-admin.php:137
+msgid "Summary"
+msgstr ""
+
+#: includes/class-admin.php:139
+msgid "Started to cancel"
+msgstr ""
+
+#: includes/class-admin.php:141
+msgid "customers who opened the flow and acted"
+msgstr ""
+
+#: includes/class-admin.php:144
+msgid "Took an offer"
+msgstr ""
+
+#: includes/class-admin.php:146
+msgid "skipped or paused instead of cancelling"
+msgstr ""
+
+#: includes/class-admin.php:149
+msgid "Cancelled"
+msgstr ""
+
+#: includes/class-admin.php:151
+msgid "completed a cancellation"
+msgstr ""
+
+#: includes/class-admin.php:156
+msgid "Monthly revenue kept"
+msgstr ""
+
+#: includes/class-admin.php:158
+msgid "No offers accepted in this period."
+msgstr ""
+
+#: includes/class-admin.php:165
+msgid "Verified"
+msgstr ""
+
+#: includes/class-admin.php:165
+msgid "renewal paid after the offer"
+msgstr ""
+
+#: includes/class-admin.php:169
+msgid "Pending"
+msgstr ""
+
+#: includes/class-admin.php:169
+msgid "next renewal not due or not paid yet"
+msgstr ""
+
+#: includes/class-admin.php:173
+msgid "Lost later"
+msgstr ""
+
+#: includes/class-admin.php:173
+msgid "cancelled before paying again"
+msgstr ""
+
+#: includes/class-admin.php:179
+msgid "Per month, excluding tax and shipping. A save only counts as verified once the customer pays the next renewal."
+msgstr ""
+
+#: includes/class-admin.php:184
+msgid "Why customers cancel"
+msgstr ""
+
+#: includes/class-admin.php:204
+msgid "Settings"
+msgstr ""
+
+#: includes/class-admin.php:209
+msgid "Cancellation flow"
+msgstr ""
+
+#: includes/class-admin.php:210
+msgid "Show the flow when customers click \"Cancel\""
+msgstr ""
+
+#: includes/class-admin.php:213
+msgid "Offers"
+msgstr ""
+
+#: includes/class-admin.php:216
+#: includes/class-offers.php:313
+msgid "Skip the next renewal"
+msgstr ""
+
+#: includes/class-admin.php:217
+msgid "Pause for"
+msgstr ""
+
+#: includes/class-admin.php:218
+msgid "Pause length"
+msgstr ""
+
+#. translators: %d: months
+#: includes/class-admin.php:223
+#, php-format
+msgid "%d month"
+msgid_plural "%d months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-admin.php:229
+msgid "Both move the next payment date; the subscription stays active. Offers only appear when the payment method supports date changes. A customer can accept one offer per paid renewal, and cancelling afterwards still ends access when the paid period ends."
+msgstr ""
+
+#: includes/class-admin.php:233
+msgid "Offer cooldown"
+msgstr ""
+
+#: includes/class-admin.php:234
+msgid "days"
+msgstr ""
+
+#: includes/class-admin.php:235
+msgid "After accepting an offer, a customer will not see another one for this many days."
+msgstr ""
+
+#: includes/class-admin.php:238
+msgid "Reasons"
+msgstr ""
+
+#: includes/class-admin.php:245
+msgid "One per line: key | label | offer. Offer is skip, pause, or empty for none."
+msgstr ""
+
+#: includes/class-admin.php:249
+msgid "Uninstall"
+msgstr ""
+
+#: includes/class-admin.php:250
+msgid "Delete all ChurnAnchor data when the plugin is deleted"
+msgstr ""
+
+#: includes/class-admin.php:253
+msgid "Save settings"
+msgstr ""
+
+#: includes/class-admin.php:255
+msgid "ChurnAnchor helps you run a fair cancellation flow. It is not legal advice; check the subscription rules that apply to your store."
+msgstr ""
+
+#: includes/class-admin.php:265
+msgid "You are not allowed to do this."
+msgstr ""
+
+#: includes/class-cancel-flow.php:86
+#: templates/cancel-flow.php:176
+msgid "Cancel subscription"
+msgstr ""
+
+#: includes/class-cancel-flow.php:176
+msgid "We could not find that subscription."
+msgstr ""
+
+#: includes/class-cancel-flow.php:183
+msgid "Back to subscription"
+msgstr ""
+
+#: includes/class-cancel-flow.php:266
+msgid "Your session expired. Please try again."
+msgstr ""
+
+#: includes/class-cancel-flow.php:308
+msgid "Please choose a reason, or cancel directly."
+msgstr ""
+
+#: includes/class-cancel-flow.php:355
+msgid "Done! Your subscription stays active and your next payment date has been moved."
+msgstr ""
+
+#: includes/class-offers.php:115
+msgid "Your subscription stays active and you keep access."
+msgstr ""
+
+#: includes/class-offers.php:117
+msgid "Next payment"
+msgstr ""
+
+#: includes/class-offers.php:222
+msgid "Please wait a moment and try again."
+msgstr ""
+
+#: includes/class-offers.php:228
+msgid "This option is no longer available for your subscription."
+msgstr ""
+
+#. translators: 1: offer name, 2: old date, 3: new date
+#: includes/class-offers.php:254
+#, php-format
+msgid "ChurnAnchor: customer accepted \"%1$s\" instead of cancelling. Next payment moved from %2$s to %3$s (UTC)."
+msgstr ""
+
+#. translators: %d: number of months
+#: includes/class-offers.php:316
+#, php-format
+msgid "Pause for %d month"
+msgid_plural "Pause for %d months"
+msgstr[0] ""
+msgstr[1] ""
+
+#: includes/class-plugin.php:74
+msgid "ChurnAnchor needs WooCommerce Subscriptions to be active. The cancellation flow is paused until then."
+msgstr ""
+
+#: includes/class-privacy.php:33
+msgid "When you cancel a subscription, we store the reason you choose, any comment you write, and whether you accepted an alternative offer. This is stored on this website only and is used to improve our service."
+msgstr ""
+
+#: includes/class-privacy.php:46
+#: includes/class-privacy.php:60
+#: includes/class-privacy.php:97
+msgid "Subscription cancellation feedback"
+msgstr ""
+
+#: includes/class-privacy.php:101
+msgid "Subscription"
+msgstr ""
+
+#: includes/class-privacy.php:105
+msgid "Event"
+msgstr ""
+
+#: includes/class-privacy.php:109
+msgid "Reason"
+msgstr ""
+
+#: includes/class-privacy.php:113
+msgid "Comment"
+msgstr ""
+
+#: includes/class-privacy.php:117
+msgid "Offer"
+msgstr ""
+
+#: includes/class-privacy.php:121
+msgid "Date (UTC)"
+msgstr ""
+
+#: includes/class-settings.php:28
+msgid "I have too much product right now"
+msgstr ""
+
+#: includes/class-settings.php:32
+msgid "It is too expensive"
+msgstr ""
+
+#: includes/class-settings.php:36
+msgid "I am not using it enough"
+msgstr ""
+
+#: includes/class-settings.php:40
+msgid "Quality or delivery problems"
+msgstr ""
+
+#: includes/class-settings.php:44
+msgid "I am switching to something else"
+msgstr ""
+
+#: includes/class-settings.php:48
+msgid "Something else"
+msgstr ""
+
+#. translators: %s: subscription number
+#: templates/cancel-flow.php:54
+#, php-format
+msgid "Subscription #%s"
+msgstr ""
+
+#. translators: 1: current step, 2: total steps
+#: templates/cancel-flow.php:63
+#, php-format
+msgid "Step %1$d of %2$d"
+msgstr ""
+
+#: templates/cancel-flow.php:70
+msgid "Before you go, can you tell us why?"
+msgstr ""
+
+#: templates/cancel-flow.php:71
+msgid "This is optional and helps us improve. If you just want to cancel, use the button at the bottom."
+msgstr ""
+
+#: templates/cancel-flow.php:74
+msgid "Cancellation reason"
+msgstr ""
+
+#: templates/cancel-flow.php:84
+msgid "Anything you would like to add? (optional)"
+msgstr ""
+
+#: templates/cancel-flow.php:89
+msgid "Continue"
+msgstr ""
+
+#: templates/cancel-flow.php:90
+msgid "Cancel subscription now"
+msgstr ""
+
+#: templates/cancel-flow.php:92
+#: templates/cancel-flow.php:177
+msgid "Keep my subscription"
+msgstr ""
+
+#: templates/cancel-flow.php:97
+msgid "Would one of these work better?"
+msgstr ""
+
+#: templates/cancel-flow.php:97
+msgid "Would this work better?"
+msgstr ""
+
+#. translators: %s: date
+#: templates/cancel-flow.php:103
+#, php-format
+msgid "You can still cancel: you would not be charged again and keep access until %s."
+msgstr ""
+
+#: templates/cancel-flow.php:105
+msgid "You can still cancel: you would not be charged again and your subscription would end now."
+msgstr ""
+
+#: templates/cancel-flow.php:146
+msgid "No thanks, cancel my subscription"
+msgstr ""
+
+#: templates/cancel-flow.php:153
+msgid "Confirm cancellation"
+msgstr ""
+
+#: templates/cancel-flow.php:157
+msgid "Future payments"
+msgstr ""
+
+#: templates/cancel-flow.php:158
+msgid "None. You will not be charged again."
+msgstr ""
+
+#: templates/cancel-flow.php:161
+msgid "Access"
+msgstr ""
+
+#. translators: %s: date
+#: templates/cancel-flow.php:166
+#, php-format
+msgid "Until %s, the end of the period you paid for"
+msgstr ""
+
+#: templates/cancel-flow.php:168
+msgid "Ends immediately"
+msgstr ""
