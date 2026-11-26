@@ -33,6 +33,20 @@ class Saves {
 		add_filter( 'woocommerce_subscription_calculated_end_of_prepaid_term_date', array( $this, 'cap_prepaid_term' ), 10, 2 );
 		add_action( self::DAILY_HOOK, array( $this, 'reconcile' ) );
 		add_action( 'admin_init', array( __CLASS__, 'schedule' ) );
+		add_filter( 'wc_subscriptions_renewal_order_data', array( __CLASS__, 'do_not_copy_meta' ) );
+	}
+
+	/**
+	 * Keep ChurnAnchor's subscription bookkeeping off renewal orders.
+	 *
+	 * @param array $data Meta copied from the subscription to the renewal order.
+	 * @return array
+	 */
+	public static function do_not_copy_meta( $data ) {
+		foreach ( array( Offers::META_LAST_OFFER, Offers::META_PAID_UNTIL, Cancel_Flow::META_NOTES ) as $key ) {
+			unset( $data[ $key ] );
+		}
+		return $data;
 	}
 
 	/**
@@ -112,7 +126,12 @@ class Saves {
 			$rows = DB::pending_saves_after( $last_id, 200 );
 			foreach ( $rows as $row ) {
 				$last_id = (int) $row->id;
-				$sub     = wcs_get_subscription( (int) $row->subscription_id );
+				if ( 0 === (int) $row->subscription_id ) {
+					// Unlinked by a privacy erasure: the outcome can no longer be checked.
+					DB::set_save_status( $last_id, 'anonymised' );
+					continue;
+				}
+				$sub = wcs_get_subscription( (int) $row->subscription_id );
 				if ( ! $sub || $sub->has_status( array( 'pending-cancel', 'cancelled', 'expired', 'trash' ) ) ) {
 					DB::set_save_status( $last_id, 'clawed_back' );
 				} elseif ( (int) $sub->get_time( 'last_order_date_paid' ) > (int) wcs_date_to_time( $row->created_at ) ) {

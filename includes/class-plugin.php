@@ -80,8 +80,10 @@ final class Plugin {
 	public static function activate() {
 		DB::install();
 		Cancel_Flow::add_endpoint();
-		flush_rewrite_rules();
-		update_option( 'churnanchor_rewrite_version', CHURNANCHOR_VERSION, true );
+		flush_rewrite_rules( false );
+		// Not recorded here: if WooCommerce Subscriptions is activated later, the flow registers its
+		// endpoint then and flushes once (Cancel_Flow::maybe_flush_rewrites).
+		delete_option( 'churnanchor_rewrite_version' );
 		Saves::schedule();
 	}
 

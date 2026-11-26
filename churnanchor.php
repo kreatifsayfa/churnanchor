@@ -3,7 +3,7 @@
  * Plugin Name:       ChurnAnchor
  * Plugin URI:        https://churnanchor.marul.co/
  * Description:       A fair, dark-pattern-free cancellation flow for WooCommerce Subscriptions: ask why, offer a skip or a pause, and track the revenue you actually keep.
- * Version:           0.2.3
+ * Version:           0.2.4
  * Requires at least: 6.5
  * Requires PHP:      7.4
  * Requires Plugins:  woocommerce
@@ -21,7 +21,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'CHURNANCHOR_VERSION', '0.2.3' );
+define( 'CHURNANCHOR_VERSION', '0.2.4' );
 define( 'CHURNANCHOR_FILE', __FILE__ );
 define( 'CHURNANCHOR_DIR', plugin_dir_path( __FILE__ ) );
 define( 'CHURNANCHOR_URL', plugin_dir_url( __FILE__ ) );

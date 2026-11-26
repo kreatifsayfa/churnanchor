@@ -59,7 +59,28 @@ class Admin {
 	 * @return string
 	 */
 	private function money( $cents, $currency ) {
+		if ( ! function_exists( 'wc_price' ) ) {
+			return number_format_i18n( $cents / 100, 2 ) . ' ' . $currency;
+		}
 		return wp_strip_all_tags( wc_price( $cents / 100, array( 'currency' => $currency ) ) );
+	}
+
+	/**
+	 * Names of enabled subscription payment methods that cannot change payment dates.
+	 *
+	 * @return string[]
+	 */
+	private static function gateways_without_date_changes() {
+		if ( ! function_exists( 'WC' ) || ! WC()->payment_gateways() ) {
+			return array();
+		}
+		$names = array();
+		foreach ( WC()->payment_gateways()->payment_gateways() as $gateway ) {
+			if ( 'yes' === $gateway->enabled && $gateway->supports( 'subscriptions' ) && ! $gateway->supports( 'subscription_date_changes' ) ) {
+				$names[] = wp_strip_all_tags( $gateway->get_title() );
+			}
+		}
+		return $names;
 	}
 
 	/**
@@ -101,6 +122,8 @@ class Admin {
 			$max_r = max( $max_r, (int) $r->n );
 		}
 		$total_r  = (int) $stats['reasons_total'];
+		$comments = DB::recent_comments( gmdate( 'Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS ) );
+		$no_dates = self::gateways_without_date_changes();
 		$is_empty = 0 === $stats['attempts'] && 0 === $stats['accepted'] && 0 === $stats['cancelled'] && empty( $stats['money'] );
 		$base_url = admin_url( 'admin.php?page=' . self::SLUG );
 		?>
@@ -125,6 +148,15 @@ class Admin {
 
 			<?php if ( ! Plugin::subscriptions_available() ) : ?>
 				<div class="notice notice-warning inline"><p><?php esc_html_e( 'WooCommerce Subscriptions was not detected. Activate it to use the cancellation flow.', 'churnanchor' ); ?></p></div>
+			<?php endif; ?>
+
+			<?php if ( $no_dates && Plugin::subscriptions_available() ) : ?>
+				<div class="notice notice-info inline"><p>
+					<?php
+					/* translators: %s: payment method names */
+					echo esc_html( sprintf( __( 'Skip and pause move the next payment date, which these enabled payment methods do not support: %s. Customers who pay with them still see the reason step and can cancel, but get no offer.', 'churnanchor' ), implode( ', ', $no_dates ) ) );
+					?>
+				</p></div>
 			<?php endif; ?>
 
 			<?php if ( $is_empty ) : ?>
@@ -196,6 +228,35 @@ class Admin {
 								</li>
 							<?php endforeach; ?>
 						</ol>
+					</section>
+				<?php endif; ?>
+
+				<?php if ( $comments ) : ?>
+					<section class="ca-panel">
+						<h2><?php esc_html_e( 'What customers wrote', 'churnanchor' ); ?></h2>
+						<ul class="ca-comments">
+							<?php foreach ( $comments as $c ) : ?>
+								<?php
+								$label = isset( $reasons[ $c->reason_key ]['label'] ) ? $reasons[ $c->reason_key ]['label'] : '';
+								$sub   = (int) $c->subscription_id > 0 && function_exists( 'wcs_get_subscription' ) ? wcs_get_subscription( (int) $c->subscription_id ) : false;
+								?>
+								<li>
+									<p class="ca-comment-text"><?php echo esc_html( $c->reason_text ); ?></p>
+									<p class="ca-muted">
+										<?php
+										echo esc_html( wp_date( get_option( 'date_format' ), (int) strtotime( $c->created_at . ' UTC' ) ) );
+										if ( $label ) {
+											echo ' · ' . esc_html( $label );
+										}
+										if ( $sub ) {
+											/* translators: %s: subscription number */
+											echo ' · <a href="' . esc_url( $sub->get_edit_order_url() ) . '">' . esc_html( sprintf( __( 'Subscription #%s', 'churnanchor' ), $sub->get_order_number() ) ) . '</a>';
+										}
+										?>
+									</p>
+								</li>
+							<?php endforeach; ?>
+						</ul>
 					</section>
 				<?php endif; ?>
 			<?php endif; ?>

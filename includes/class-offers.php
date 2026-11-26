@@ -260,7 +260,10 @@ class Offers {
 			$sub->save();
 			return true;
 		} catch ( \Exception $e ) {
-			return new \WP_Error( 'churnanchor_apply_failed', $e->getMessage() );
+			if ( function_exists( 'wc_get_logger' ) ) {
+				wc_get_logger()->error( 'Offer ' . $offer . ' failed on subscription ' . $sub->get_id() . ': ' . $e->getMessage(), array( 'source' => 'churnanchor' ) );
+			}
+			return new \WP_Error( 'churnanchor_apply_failed', __( 'Sorry, we could not change your subscription. Please try again or contact us.', 'churnanchor' ) );
 		} finally {
 			DB::release_lock( $lock_key, $token );
 		}
@@ -296,6 +299,11 @@ class Offers {
 	 * @return int
 	 */
 	public static function access_end_if_cancelled( $sub ) {
+		// Mirrors WC_Subscription::cancel_order(): only these subscriptions keep access until the
+		// end of the prepaid term; any other status is cancelled immediately.
+		if ( ! ( $sub->has_status( 'active' ) || ( $sub->has_status( 'on-hold' ) && ! $sub->needs_payment() ) ) ) {
+			return 0;
+		}
 		$end  = $sub->calculate_date( 'end_of_prepaid_term' ); // Filtered by Saves::cap_prepaid_term().
 		$time = $end ? (int) wcs_date_to_time( $end ) : 0;
 		return $time > time() + MINUTE_IN_SECONDS ? $time : 0;

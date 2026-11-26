@@ -47,3 +47,9 @@
 	.churnanchor-admin .ca-bar-track { grid-column: 1 / -1; order: 3; }
 }
 @media (forced-colors: active) { .churnanchor-admin .ca-bar-fill { background: Highlight; } }
+
+.churnanchor-admin .ca-comments{margin:0;padding:0;list-style:none}
+.churnanchor-admin .ca-comments li{padding:12px 0;border-top:1px solid #e2e4e7}
+.churnanchor-admin .ca-comments li:first-child{border-top:0;padding-top:0}
+.churnanchor-admin .ca-comment-text{margin:0 0 4px;font-size:14px;white-space:pre-line}
+.churnanchor-admin .ca-comments .ca-muted{margin:0}

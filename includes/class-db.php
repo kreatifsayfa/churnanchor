@@ -222,6 +222,49 @@ class DB {
 	}
 
 	/**
+	 * The reason step of a flow (reason key and comment), or null.
+	 *
+	 * @param string $flow_id         Flow UUID.
+	 * @param int    $subscription_id Subscription id.
+	 * @return object|null
+	 */
+	public static function flow_reason( $flow_id, $subscription_id ) {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table, must be fresh.
+		return $wpdb->get_row(
+			$wpdb->prepare(
+				'SELECT reason_key, reason_text FROM %i WHERE flow_id = %s AND event_type = %s AND subscription_id = %d LIMIT 1',
+				self::events_table(),
+				$flow_id,
+				'reason',
+				$subscription_id
+			)
+		);
+	}
+
+	/**
+	 * Latest written comments from the reason step.
+	 *
+	 * @param string $since_gmt MySQL datetime (GMT).
+	 * @param int    $limit     Rows.
+	 * @return array
+	 */
+	public static function recent_comments( $since_gmt, $limit = 10 ) {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- reporting on a custom table.
+		$rows = $wpdb->get_results(
+			$wpdb->prepare(
+				'SELECT subscription_id, reason_key, reason_text, created_at FROM %i WHERE event_type = %s AND reason_text <> \'\' AND created_at >= %s ORDER BY id DESC LIMIT %d',
+				self::events_table(),
+				'reason',
+				$since_gmt,
+				$limit
+			)
+		);
+		return is_array( $rows ) ? $rows : array();
+	}
+
+	/**
 	 * Create a pending save.
 	 *
 	 * @param array $data Save fields.
@@ -278,7 +321,7 @@ class DB {
 	public static function pending_saves_after( $after_id, $limit = 200 ) {
 		global $wpdb;
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table read.
-		return $wpdb->get_results(
+		$rows = $wpdb->get_results(
 			$wpdb->prepare(
 				'SELECT id, subscription_id, created_at FROM %i WHERE status = %s AND id > %d ORDER BY id ASC LIMIT %d',
 				self::saves_table(),
@@ -287,6 +330,7 @@ class DB {
 				$limit
 			)
 		);
+		return is_array( $rows ) ? $rows : array();
 	}
 
 	/**
@@ -381,7 +425,7 @@ class DB {
 		);
 		$reasons = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT reason_key, COUNT(*) AS n FROM %i WHERE event_type = %s AND reason_key <> \'\' AND created_at >= %s GROUP BY reason_key ORDER BY n DESC LIMIT 5',
+				'SELECT reason_key, COUNT(*) AS n FROM %i WHERE event_type = %s AND reason_key <> \'\' AND created_at >= %s GROUP BY reason_key ORDER BY n DESC LIMIT 12',
 				$events,
 				'reason',
 				$since_gmt
@@ -397,8 +441,8 @@ class DB {
 			'attempts'  => $attempts,
 			'cancelled' => $cancelled,
 			'accepted'  => $accepted,
-			'money'     => $money,
-			'reasons'   => $reasons,
+			'money'     => is_array( $money ) ? $money : array(),
+			'reasons'   => is_array( $reasons ) ? $reasons : array(),
 		);
 	}
 }

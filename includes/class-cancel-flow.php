@@ -18,7 +18,8 @@ defined( 'ABSPATH' ) || exit;
  */
 class Cancel_Flow {
 
-	const ENDPOINT = 'churnanchor-cancel';
+	const ENDPOINT   = 'churnanchor-cancel';
+	const META_NOTES = '_churnanchor_feedback_notes';
 
 	/**
 	 * Register hooks.
@@ -153,7 +154,10 @@ class Cancel_Flow {
 	 * @return bool
 	 */
 	private function can_cancel( $sub ) {
-		return \WCS_User_Change_Status_Handler::validate_request( get_current_user_id(), $sub, 'cancelled' );
+		// A pending-cancel subscription is already cancelled; cancelling "again" would end the
+		// prepaid term immediately, so the flow is not offered for it.
+		return ! $sub->has_status( 'pending-cancel' )
+			&& \WCS_User_Change_Status_Handler::validate_request( get_current_user_id(), $sub, 'cancelled' );
 	}
 
 	/**
@@ -178,6 +182,16 @@ class Cancel_Flow {
 		}
 
 		$view_url = $sub->get_view_order_url();
+		if ( $sub->has_status( 'pending-cancel' ) ) {
+			$end = $sub->get_time( 'end' );
+			wc_print_notice(
+				$end
+					/* translators: %s: date */
+					? sprintf( __( 'This subscription is already cancelled. You keep access until %s and will not be charged again.', 'churnanchor' ), wp_date( wc_date_format(), $end ) )
+					: __( 'This subscription is already cancelled.', 'churnanchor' ),
+				'notice'
+			);
+		}
 		if ( ! $this->can_cancel( $sub ) ) {
 			wc_print_notices();
 			echo '<p><a class="button" href="' . esc_url( $view_url ) . '">' . esc_html__( 'Back to subscription', 'churnanchor' ) . '</a></p>';
@@ -250,6 +264,45 @@ class Cancel_Flow {
 	 */
 	public static function clean_flow_id( $flow_id ) {
 		return preg_match( '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/', $flow_id ) ? $flow_id : '';
+	}
+
+	/**
+	 * Add the customer's reason and comment to the subscription notes, so the store sees them
+	 * on the subscription screen.
+	 *
+	 * @param \WC_Subscription $sub     Subscription.
+	 * @param string           $flow_id Flow UUID.
+	 * @param string           $reason  Reason key from the request ('' if none).
+	 * @param string           $text    Comment from the request ('' if none).
+	 */
+	private static function note_feedback( $sub, $flow_id, $reason, $text ) {
+		if ( ! $sub ) {
+			return;
+		}
+		$saved = DB::flow_reason( $flow_id, $sub->get_id() );
+		if ( ! $reason && $saved ) {
+			$reason = $saved->reason_key;
+		}
+		if ( '' === $text && $saved ) {
+			$text = (string) $saved->reason_text;
+		}
+		if ( ! $reason && '' === $text ) {
+			return;
+		}
+		$reasons = Settings::get( 'reasons' );
+		$label   = isset( $reasons[ $reason ]['label'] ) ? $reasons[ $reason ]['label'] : __( 'none given', 'churnanchor' );
+		/* translators: %s: reason label */
+		$note = sprintf( __( 'ChurnAnchor: cancellation reason: %s', 'churnanchor' ), $label );
+		if ( '' !== $text ) {
+			/* translators: %s: customer comment */
+			$note .= "\n" . sprintf( __( 'Comment: %s', 'churnanchor' ), $text );
+		}
+		$note_id = $sub->add_order_note( $note );
+		// Remember the note so a personal data erasure can remove the customer's words (Privacy::erase).
+		$ids   = array_filter( array_map( 'absint', (array) $sub->get_meta( self::META_NOTES ) ) );
+		$ids[] = (int) $note_id;
+		$sub->update_meta_data( self::META_NOTES, $ids );
+		$sub->save_meta_data();
 	}
 
 	/**
@@ -330,8 +383,12 @@ class Cancel_Flow {
 
 			case 'accept':
 				$offer = isset( $_POST['churnanchor_offer'] ) ? sanitize_key( wp_unslash( $_POST['churnanchor_offer'] ) ) : '';
-				// Only an offer this flow actually showed, and that is still valid for the reason, can be accepted.
-				if ( ! $reason || ! $offer || ! in_array( $offer, Offers::offers_for_reason( $reason, $sub ), true ) || ! DB::flow_has_event( $flow_id, 'offer_shown', $sub->get_id() ) ) {
+				// Only an offer this flow actually showed, and that is still valid for the reason, can be
+				// accepted, and only once: a finished flow (old tab, bookmark) cannot change the subscription again.
+				if ( ! $reason || ! $offer || ! in_array( $offer, Offers::offers_for_reason( $reason, $sub ), true )
+					|| ! DB::flow_has_event( $flow_id, 'offer_shown', $sub->get_id() )
+					|| DB::flow_has_event( $flow_id, 'offer_accepted', $sub->get_id() )
+					|| DB::flow_has_event( $flow_id, 'cancelled', $sub->get_id() ) ) {
 					wp_safe_redirect( self::flow_url( $sub_id ) );
 					exit;
 				}
@@ -343,6 +400,9 @@ class Cancel_Flow {
 				}
 				if ( DB::log_event( $base + array( 'event' => 'offer_accepted', 'offer_key' => $offer ) ) ) {
 					DB::create_save( $base + array( 'offer_key' => $offer ) );
+					$updated = wcs_get_subscription( $sub->get_id() ); // The copy with the new dates.
+					$sub     = $updated ? $updated : $sub;
+					self::note_feedback( $sub, $flow_id, $reason, '' );
 					/**
 					 * Fires after a customer accepts a save offer.
 					 *
@@ -357,10 +417,17 @@ class Cancel_Flow {
 				exit;
 
 			case 'cancel':
+				// "Cancel now" on the first step still records a reason or comment the customer gave.
+				$text = isset( $_POST['churnanchor_reason_text'] ) ? sanitize_textarea_field( wp_unslash( $_POST['churnanchor_reason_text'] ) ) : '';
+				$text = function_exists( 'mb_substr' ) ? mb_substr( $text, 0, 1000 ) : substr( $text, 0, 1000 );
+				if ( ( $reason || '' !== $text ) && ! DB::flow_has_event( $flow_id, 'reason', $sub->get_id() ) ) {
+					DB::log_event( $base + array( 'event' => 'reason', 'reason_text' => $text ) );
+				}
 				\WCS_User_Change_Status_Handler::change_users_subscription( $sub, 'cancelled' );
 				$fresh = wcs_get_subscription( $sub->get_id() );
 				if ( $fresh && $fresh->has_status( array( 'pending-cancel', 'cancelled' ) ) ) {
 					DB::log_event( $base + array( 'event' => 'cancelled' ) );
+					self::note_feedback( $fresh, $flow_id, $reason, $text );
 					/**
 					 * Fires after a customer cancels through the flow.
 					 *

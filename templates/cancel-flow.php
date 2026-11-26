@@ -146,6 +146,7 @@ $churnanchor_steps = 'reason' === $step ? 1 : 2;
 				<button type="submit" class="ca-btn ca-btn-secondary"><?php esc_html_e( 'No thanks, cancel my subscription', 'churnanchor' ); ?></button>
 			</form>
 		</div>
+		<p class="ca-keep"><a href="<?php echo esc_url( $view_url ); ?>"><?php esc_html_e( 'Keep my subscription', 'churnanchor' ); ?></a></p>
 
 	<?php else : ?>
 		<form method="post" class="ca-form">

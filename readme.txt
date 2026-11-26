@@ -4,7 +4,7 @@ Tags: woocommerce subscriptions, cancellation, churn, retention, pause subscript
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.2.3
+Stable tag: 0.2.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,7 +85,23 @@ No. Everything stays in your WordPress database.
 
 Copy `templates/cancel-flow.php` to `yourtheme/churnanchor/cancel-flow.php`.
 
+== Screenshots ==
+
+1. Step 1: the subscriber is asked why they are cancelling (optional). The cancel button is always on the screen.
+2. Step 2: an offer that fits the reason, such as skipping the next renewal. They can still cancel from here.
+3. The dashboard (sample data): cancellation attempts, saves counted only after a paid renewal, and top reasons.
+
 == Changelog ==
+
+= 0.2.4 =
+* New: the reason and comment a customer gives are added as a note on the subscription, and the dashboard lists what customers wrote.
+* New: the dashboard tells you when an enabled payment method cannot move payment dates (those customers see no skip/pause offer).
+* Fix: a subscription that is already pending cancellation can no longer be cancelled again from an old flow link (which ended the paid period early).
+* Fix: "Cancel subscription now" on the first step keeps the reason and comment the customer entered.
+* Fix: an offer from a finished flow (old tab or bookmark) cannot be accepted again.
+* Fix: the confirm screen no longer promises access until the end of the period when the subscription would end immediately (unpaid renewal).
+* Fix: saves unlinked by a privacy erasure are no longer counted as "lost"; the erasure also removes ChurnAnchor's notes that quote the customer.
+* Fix: "Keep my subscription" link on the offer step; all reasons are shown on the dashboard; errors are logged instead of shown to customers.
 
 = 0.2.3 =
 * Database: the events table column `event` is renamed to `event_type` (existing data is kept). The schema version is only saved once the tables exist.

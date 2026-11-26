@@ -151,8 +151,22 @@ class Privacy {
 					$user->ID
 				)
 			);
+			// The cancellation notes ChurnAnchor added to this customer's subscriptions quote their comment.
+			if ( function_exists( 'wcs_get_users_subscriptions' ) ) {
+				foreach ( wcs_get_users_subscriptions( $user->ID ) as $sub ) {
+					$ids = array_filter( array_map( 'absint', (array) $sub->get_meta( Cancel_Flow::META_NOTES ) ) );
+					foreach ( $ids as $note_id ) {
+						wc_delete_order_note( $note_id );
+						++$removed;
+					}
+					if ( $ids ) {
+						$sub->delete_meta_data( Cancel_Flow::META_NOTES );
+						$sub->save_meta_data();
+					}
+				}
+			}
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table.
-			$removed = (int) $wpdb->query(
+			$removed += (int) $wpdb->query(
 				$wpdb->prepare( "UPDATE %i SET customer_id = 0, subscription_id = 0, reason_text = '' WHERE customer_id = %d", DB::events_table(), $user->ID )
 			);
 		}
