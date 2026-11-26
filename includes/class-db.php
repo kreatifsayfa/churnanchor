@@ -14,7 +14,7 @@ defined( 'ABSPATH' ) || exit;
  */
 class DB {
 
-	const SCHEMA_VERSION = '1';
+	const SCHEMA_VERSION = '2';
 	const OPTION         = 'churnanchor_db_version';
 
 	/**
@@ -57,13 +57,21 @@ class DB {
 		$events  = self::events_table();
 		$saves   = self::saves_table();
 
+		// Schema 1 named a column `event` (a MySQL keyword). Rename it in place so
+		// existing rows and indexes are kept.
+		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching,WordPress.DB.DirectDatabaseQuery.SchemaChange -- one-time schema migration on a custom table.
+		if ( self::table_exists( $events ) && self::column_exists( $events, 'event' ) && ! self::column_exists( $events, 'event_type' ) ) {
+			$wpdb->query( $wpdb->prepare( 'ALTER TABLE %i CHANGE `event` event_type varchar(32) NOT NULL', $events ) );
+		}
+		// phpcs:enable
+
 		dbDelta(
 			"CREATE TABLE {$events} (
 				id bigint(20) unsigned NOT NULL AUTO_INCREMENT,
 				flow_id char(36) NOT NULL,
 				subscription_id bigint(20) unsigned NOT NULL,
 				customer_id bigint(20) unsigned NOT NULL DEFAULT 0,
-				event varchar(32) NOT NULL,
+				event_type varchar(32) NOT NULL,
 				reason_key varchar(64) NOT NULL DEFAULT '',
 				reason_text text NULL,
 				offer_key varchar(64) NOT NULL DEFAULT '',
@@ -71,9 +79,9 @@ class DB {
 				currency char(3) NOT NULL DEFAULT '',
 				created_at datetime NOT NULL,
 				PRIMARY KEY  (id),
-				UNIQUE KEY flow_event (flow_id, event),
-				KEY sub_event_time (subscription_id, event, created_at),
-				KEY event_time (event, created_at),
+				UNIQUE KEY flow_event (flow_id, event_type),
+				KEY sub_event_time (subscription_id, event_type, created_at),
+				KEY event_time (event_type, created_at),
 				KEY customer_id (customer_id)
 			) {$charset};"
 		);
@@ -95,7 +103,40 @@ class DB {
 			) {$charset};"
 		);
 
-		update_option( self::OPTION, self::SCHEMA_VERSION, true );
+		// Only record the schema version once the tables and the renamed column really
+		// exist, so a failed install or migration is retried instead of marked done.
+		if ( self::table_exists( $saves ) && self::column_exists( $events, 'event_type' ) && ! self::column_exists( $events, 'event' ) ) {
+			update_option( self::OPTION, self::SCHEMA_VERSION, true );
+		}
+	}
+
+	/**
+	 * Whether a table exists (case-insensitive, for lower_case_table_names hosts).
+	 *
+	 * @param string $table Table name.
+	 * @return bool
+	 */
+	private static function table_exists( $table ) {
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- schema check.
+		$found = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $wpdb->esc_like( $table ) ) );
+		return null !== $found && 0 === strcasecmp( (string) $found, $table );
+	}
+
+	/**
+	 * Whether a column exists in a table.
+	 *
+	 * @param string $table  Table name.
+	 * @param string $column Column name.
+	 * @return bool
+	 */
+	private static function column_exists( $table, $column ) {
+		global $wpdb;
+		if ( ! self::table_exists( $table ) ) {
+			return false;
+		}
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- schema check.
+		return null !== $wpdb->get_var( $wpdb->prepare( 'SHOW COLUMNS FROM %i LIKE %s', $table, $wpdb->esc_like( $column ) ) );
 	}
 
 	/**
@@ -125,7 +166,7 @@ class DB {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table write.
 		$wpdb->query(
 			$wpdb->prepare(
-				'INSERT IGNORE INTO %i (flow_id, subscription_id, customer_id, event, reason_key, reason_text, offer_key, mrr_cents, currency, created_at) VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %s)',
+				'INSERT IGNORE INTO %i (flow_id, subscription_id, customer_id, event_type, reason_key, reason_text, offer_key, mrr_cents, currency, created_at) VALUES (%s, %d, %d, %s, %s, %s, %s, %d, %s, %s)',
 				self::events_table(),
 				$row['flow_id'],
 				$row['subscription_id'],
@@ -168,7 +209,7 @@ class DB {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table, must be fresh.
 		$found = $wpdb->get_var(
 			$wpdb->prepare(
-				'SELECT id FROM %i WHERE flow_id = %s AND event = %s AND subscription_id = %d AND ( %s = \'\' OR offer_key = %s ) LIMIT 1',
+				'SELECT id FROM %i WHERE flow_id = %s AND event_type = %s AND subscription_id = %d AND ( %s = \'\' OR offer_key = %s ) LIMIT 1',
 				self::events_table(),
 				$flow_id,
 				$event,
@@ -323,13 +364,13 @@ class DB {
 
 		// phpcs:disable WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- reporting on custom tables.
 		$attempts = (int) $wpdb->get_var(
-			$wpdb->prepare( 'SELECT COUNT(DISTINCT flow_id) FROM %i WHERE event = %s AND created_at >= %s', $events, 'attempt', $since_gmt )
+			$wpdb->prepare( 'SELECT COUNT(DISTINCT flow_id) FROM %i WHERE event_type = %s AND created_at >= %s', $events, 'attempt', $since_gmt )
 		);
 		$cancelled = (int) $wpdb->get_var(
-			$wpdb->prepare( 'SELECT COUNT(DISTINCT flow_id) FROM %i WHERE event = %s AND created_at >= %s', $events, 'cancelled', $since_gmt )
+			$wpdb->prepare( 'SELECT COUNT(DISTINCT flow_id) FROM %i WHERE event_type = %s AND created_at >= %s', $events, 'cancelled', $since_gmt )
 		);
 		$accepted = (int) $wpdb->get_var(
-			$wpdb->prepare( 'SELECT COUNT(DISTINCT flow_id) FROM %i WHERE event = %s AND created_at >= %s', $events, 'offer_accepted', $since_gmt )
+			$wpdb->prepare( 'SELECT COUNT(DISTINCT flow_id) FROM %i WHERE event_type = %s AND created_at >= %s', $events, 'offer_accepted', $since_gmt )
 		);
 		$money = $wpdb->get_results(
 			$wpdb->prepare(
@@ -340,14 +381,14 @@ class DB {
 		);
 		$reasons = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT reason_key, COUNT(*) AS n FROM %i WHERE event = %s AND reason_key <> \'\' AND created_at >= %s GROUP BY reason_key ORDER BY n DESC LIMIT 5',
+				'SELECT reason_key, COUNT(*) AS n FROM %i WHERE event_type = %s AND reason_key <> \'\' AND created_at >= %s GROUP BY reason_key ORDER BY n DESC LIMIT 5',
 				$events,
 				'reason',
 				$since_gmt
 			)
 		);
 		$reasons_total = (int) $wpdb->get_var(
-			$wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE event = %s AND reason_key <> \'\' AND created_at >= %s', $events, 'reason', $since_gmt )
+			$wpdb->prepare( 'SELECT COUNT(*) FROM %i WHERE event_type = %s AND reason_key <> \'\' AND created_at >= %s', $events, 'reason', $since_gmt )
 		);
 		// phpcs:enable
 

@@ -4,7 +4,7 @@ Tags: woocommerce subscriptions, cancellation, churn, retention, pause subscript
 Requires at least: 6.5
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 0.2.2
+Stable tag: 0.2.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -86,6 +86,9 @@ No. Everything stays in your WordPress database.
 Copy `templates/cancel-flow.php` to `yourtheme/churnanchor/cancel-flow.php`.
 
 == Changelog ==
+
+= 0.2.3 =
+* Database: the events table column `event` is renamed to `event_type` (existing data is kept). The schema version is only saved once the tables exist.
 
 = 0.2.2 =
 * Readme: answers to common questions about reducing cancellations, cancellation laws and how saves are counted.

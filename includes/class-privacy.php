@@ -83,7 +83,7 @@ class Privacy {
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery,WordPress.DB.DirectDatabaseQuery.NoCaching -- custom table.
 		$rows  = $wpdb->get_results(
 			$wpdb->prepare(
-				'SELECT id, subscription_id, event, reason_key, reason_text, offer_key, created_at FROM %i WHERE customer_id = %d ORDER BY id ASC LIMIT %d OFFSET %d',
+				'SELECT id, subscription_id, event_type, reason_key, reason_text, offer_key, created_at FROM %i WHERE customer_id = %d ORDER BY id ASC LIMIT %d OFFSET %d',
 				DB::events_table(),
 				$user->ID,
 				$per,
@@ -103,7 +103,7 @@ class Privacy {
 					),
 					array(
 						'name'  => __( 'Event', 'churnanchor' ),
-						'value' => $r->event,
+						'value' => $r->event_type,
 					),
 					array(
 						'name'  => __( 'Reason', 'churnanchor' ),
