@@ -3,9 +3,9 @@
 ChurnAnchor is a free WordPress plugin (GPL-2.0-or-later) for stores that use WooCommerce Subscriptions. When a customer clicks **Cancel**, it asks why (optional), offers one alternative that fits the reason (skip the next renewal, or pause for 1–3 months), and keeps a **cancel button on every step**. A dashboard shows how much monthly revenue you actually kept: a save counts only after the customer's next renewal is paid.
 
 - Website and docs: https://churnanchor.marul.co
-- 45-second video: https://churnanchor.marul.co/video/churnanchor-demo.webm
-- Download the latest release: see [Releases](../../releases), or https://churnanchor.marul.co/downloads/churnanchor-0.2.2.zip
-- WordPress.org: submitted, awaiting review
+- 45-second video: https://www.youtube.com/watch?v=0OWsuQpSZMk
+- Install from WordPress.org: https://wordpress.org/plugins/churnanchor/ (or search "ChurnAnchor" under Plugins → Add New)
+- Zip downloads: see [Releases](../../releases)
 
 ![Reason step](docs/step-1-reason.png)
 ![Offer step](docs/step-2-offer.png)
